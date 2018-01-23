@@ -4,9 +4,24 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+const flash = require('connect-flash');
+const passport = require('passport');
+
+const mongoose = require('mongoose');
+const session = require('express-session');
+const MongoStore = require('connect-mongo')(session);
+
+mongoose.Promise = global.Promise;
+
+// Развернул бд на mlab, ничего локально поднимать не нужно
+mongoose.connect('mongodb://tchernyavsky:12345@ds213118.mlab.com:13118/fasten', {useMongoClient: true});
+
+require('./models/user');
+require('./models/logintoken');
 
 var index = require('./routes/index');
-var users = require('./routes/users');
+var reg = require('./routes/reg');
+const tokenReq = require('./routes/login-token');
 
 var app = express();
 
@@ -21,9 +36,28 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(flash());
 
+app.use(session({
+  secret: 'secret',
+  key: 'keys',
+  cookie: {
+    path: '/',
+    httpOnly: true,
+    maxAge: null
+  },
+  saveUninitialized: false,
+  resave: false,
+  store: new MongoStore({mongooseConnection: mongoose.connection})
+}));
+
+require('./config/config-passport');
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.use('*', tokenReq);
 app.use('/', index);
-app.use('/users', users);
+app.use('/registration', reg);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -1,5 +1,5 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
 const passport = require('passport');
 const uuidv4 = require('uuid/v4');
 const mongoose = require('mongoose');
@@ -7,7 +7,7 @@ const User = mongoose.model('user');
 const loginToken = mongoose.model('loginToken');
 const setCookie = require('../lib/setcookie');
 
-var isAuthenticated = function(req, res, next) {
+const isAuthenticated = function(req, res, next) {
   if (req.isAuthenticated()) {
     return next();
   }
@@ -56,13 +56,7 @@ router.post('/login', (req, res, next) => {
       }
     })
   })(req, res, next)
-})
-
-// router.post('/login', passport.authenticate('loginUsers', {
-//   successRedirect: '/profile',
-//   failureRedirect: '/',
-//   failureFlash: true
-// }));
+});
 
 router.get('/profile', isAuthenticated, function(req, res) {
   console.log(req.user);

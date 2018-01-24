@@ -2,7 +2,8 @@ extends layout
 
 block content
   .container
-    .user Login: #{user.login}
-    .name Name: #{user.name}
-    if (message)
-      .status.text-info #{message}
+    .wrapper
+      .user Login: #{user.login}
+      .name Name: #{user.name}
+      if (message)
+        .status.text-info #{message}
